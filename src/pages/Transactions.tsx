@@ -38,9 +38,12 @@ const ALL_TX: TxRow[] = [
 
 type SortKey = "dateNum" | "desc" | "categoryName" | "type" | "amount";
 
+const TYPE_FILTERS = ["all", "income", "expense", "emergency"] as const;
+type TypeFilter = typeof TYPE_FILTERS[number];
+
 export default function TransactionsPage() {
   const [catFilter, setCatFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
   const [search, setSearch] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("dateNum");
   const [sortAsc, setSortAsc] = useState(true);
@@ -78,17 +81,60 @@ export default function TransactionsPage() {
     return sortAsc ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />;
   };
 
+  const TYPE_LABELS: Record<TypeFilter, string> = {
+    all: "All",
+    income: "Income",
+    expense: "Expense",
+    emergency: "Emergency",
+  };
+
   return (
     <AppShell title="Transactions">
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Transactions — March 2025</h2>
+      <div className="space-y-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-bold text-[#0F172A]">Transactions</h2>
+            <p className="text-sm text-slate-500 mt-0.5">March 2025 · {filtered.length} records</p>
+          </div>
+        </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3">
+        {/* Search + Filters */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[200px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search transactions..."
+              className="w-full h-10 pl-9 pr-3 rounded-lg border border-[#E2E8F0] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            />
+          </div>
+
+          {/* Type filter pills */}
+          <div className="flex gap-1.5">
+            {TYPE_FILTERS.map((t) => (
+              <button
+                key={t}
+                onClick={() => setTypeFilter(t)}
+                className={`px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
+                  typeFilter === t
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "bg-white border border-[#E2E8F0] text-slate-600 hover:border-blue-300 hover:text-blue-600"
+                }`}
+              >
+                {TYPE_LABELS[t]}
+                {t === "emergency" && <span className="ml-1">🚨</span>}
+              </button>
+            ))}
+          </div>
+
+          {/* Category select */}
           <select
             value={catFilter}
             onChange={e => setCatFilter(e.target.value)}
-            className="h-10 px-3 rounded-lg border border-border text-sm bg-card focus:outline-none focus:ring-2 focus:ring-info/30"
+            className="h-10 px-3 rounded-lg border border-[#E2E8F0] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-700"
           >
             <option value="all">All Categories</option>
             {uniqueCats.map(c => (
@@ -97,34 +143,17 @@ export default function TransactionsPage() {
               </option>
             ))}
           </select>
-          <select
-            value={typeFilter}
-            onChange={e => setTypeFilter(e.target.value)}
-            className="h-10 px-3 rounded-lg border border-border text-sm bg-card focus:outline-none focus:ring-2 focus:ring-info/30"
-          >
-            <option value="all">All Types</option>
-            <option value="income">Income</option>
-            <option value="expense">Expense</option>
-            <option value="emergency">Emergency</option>
-          </select>
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search descriptions..."
-              className="w-full h-10 pl-9 pr-3 rounded-lg border border-border text-sm bg-card focus:outline-none focus:ring-2 focus:ring-info/30"
-            />
-          </div>
         </div>
 
         {/* Table */}
-        <div className="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+        <div
+          className="bg-white rounded-xl border border-[#E2E8F0] overflow-hidden"
+          style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+        >
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-border bg-secondary/50">
+                <tr className="border-b border-[#E2E8F0] bg-slate-50">
                   {([
                     ["dateNum", "Date"],
                     ["desc", "Description"],
@@ -135,7 +164,7 @@ export default function TransactionsPage() {
                     <th
                       key={key}
                       onClick={() => toggleSort(key)}
-                      className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wide text-muted-foreground cursor-pointer hover:text-foreground transition-colors select-none"
+                      className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-400 cursor-pointer hover:text-slate-700 transition-colors select-none sticky top-0 bg-slate-50"
                     >
                       <div className="flex items-center gap-1">
                         {label} <SortIcon col={key} />
@@ -148,44 +177,47 @@ export default function TransactionsPage() {
                 {filtered.map((tx, i) => (
                   <tr
                     key={i}
-                    className={`border-b border-border last:border-0 transition-colors ${
+                    className={`border-b border-[#E2E8F0] last:border-0 transition-colors hover:bg-slate-50 ${
                       tx.isEmergency
-                        ? "bg-destructive/5"
+                        ? "bg-red-50/60"
                         : i % 2 === 1
-                        ? "bg-secondary/20"
+                        ? "bg-slate-50/40"
                         : ""
                     }`}
                   >
-                    <td className="px-4 py-3 text-muted-foreground">{tx.date}</td>
-                    <td className="px-4 py-3 font-medium">{tx.desc}</td>
-                    <td className="px-4 py-3 text-muted-foreground">{tx.categoryName}</td>
+                    <td className="px-4 py-3 text-slate-500 text-xs font-medium">{tx.date}</td>
+                    <td className="px-4 py-3 font-medium text-[#0F172A]">
+                      {tx.desc}
+                      {tx.isEmergency && <span className="ml-2 text-xs text-red-500">🚨</span>}
+                    </td>
+                    <td className="px-4 py-3 text-slate-500 text-xs">{tx.categoryName}</td>
                     <td className="px-4 py-3">
                       {tx.isEmergency ? (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-[999px] text-xs font-medium bg-destructive/10 text-destructive">
-                          <AlertTriangle className="w-3 h-3" /> 🚨 Emergency
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-600 border border-red-200">
+                          <AlertTriangle className="w-3 h-3" /> Emergency
                         </span>
                       ) : tx.type === "income" ? (
-                        <span className="px-2 py-0.5 rounded-[999px] text-xs font-medium bg-success/10 text-success">
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
                           Income
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-[999px] text-xs font-medium bg-secondary text-muted-foreground">
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
                           Expense
                         </span>
                       )}
                     </td>
-                    <td className={`px-4 py-3 font-medium tabular-nums text-right ${
-                      tx.amount > 0 ? "text-success" : "text-destructive"
+                    <td className={`px-4 py-3 font-semibold tabular-nums text-right text-sm ${
+                      tx.amount > 0 ? "text-emerald-600" : "text-red-500"
                     }`}>
-                      {tx.amount > 0 ? "+" : ""}{formatINR(Math.abs(tx.amount))}
+                      {tx.amount > 0 ? "+" : "−"}{formatINR(Math.abs(tx.amount))}
                     </td>
                   </tr>
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                      <Search className="w-8 h-8 mx-auto mb-2 opacity-40" />
-                      No transactions match your filters.
+                    <td colSpan={5} className="px-4 py-12 text-center text-slate-400">
+                      <Search className="w-8 h-8 mx-auto mb-3 opacity-30" />
+                      <p className="font-medium">No transactions match your filters.</p>
                     </td>
                   </tr>
                 )}
@@ -193,13 +225,14 @@ export default function TransactionsPage() {
             </table>
           </div>
           {/* Summary Footer */}
-          <div className="px-4 py-3 bg-secondary/30 border-t border-border flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">
-              Total In: <span className="font-medium text-success">{formatINR(totalIn)}</span> · Total Out:{" "}
-              <span className="font-medium text-destructive">{formatINR(totalOut)}</span>
+          <div className="px-4 py-3 bg-slate-50 border-t border-[#E2E8F0] flex items-center justify-between text-sm">
+            <span className="text-slate-500">
+              In: <span className="font-semibold text-emerald-600">{formatINR(totalIn)}</span>
+              <span className="mx-2 text-slate-300">·</span>
+              Out: <span className="font-semibold text-red-500">{formatINR(totalOut)}</span>
             </span>
-            <span className={`font-bold tabular-nums ${net >= 0 ? "text-success" : "text-destructive"}`}>
-              Net: {net >= 0 ? "+" : "-"}{formatINR(Math.abs(net))}
+            <span className={`font-bold tabular-nums ${net >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+              Net: {net >= 0 ? "+" : "−"}{formatINR(Math.abs(net))}
             </span>
           </div>
         </div>

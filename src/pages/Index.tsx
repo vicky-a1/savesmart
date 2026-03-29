@@ -177,53 +177,52 @@ function CategoryDrawer({ cat, onClose }: { cat: CategoryData; onClose: () => vo
   const remaining = Math.max(0, cat.budget - cat.spent);
   const pieData = [
     { value: cat.spent, fill: cat.spent > cat.budget ? "#DC2626" : "#059669" },
-    { value: remaining, fill: "hsl(210, 20%, 96%)" },
+    { value: remaining, fill: "#F1F5F9" },
   ];
   const statusColor =
     cat.spent > cat.budget
-      ? "bg-destructive/10 text-destructive"
+      ? "bg-red-50 text-red-600 border border-red-200"
       : cat.spent / cat.budget >= 0.75
-      ? "bg-warning/10 text-warning"
-      : "bg-success/10 text-success";
+      ? "bg-amber-50 text-amber-600 border border-amber-200"
+      : "bg-emerald-50 text-emerald-600 border border-emerald-200";
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
-      <div
-        className="fixed top-0 right-0 h-full w-[380px] max-w-[90vw] bg-card border-l border-border shadow-lg z-50 flex flex-col"
-        style={{ animation: "slide-right 300ms ease-out" }}
-      >
-        <div className="flex items-center justify-between p-6 border-b border-border">
+      <div className="drawer-overlay" onClick={onClose} />
+      <div className="drawer-panel flex flex-col">
+        <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0]">
           <div className="flex items-center gap-3">
-            <Icon className="w-5 h-5 text-muted-foreground" />
-            <h3 className="text-base font-semibold">{cat.name}</h3>
+            <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center">
+              <Icon className="w-[18px] h-[18px] text-slate-600" />
+            </div>
+            <div>
+              <h3 className="text-base font-semibold text-[#0F172A]">{cat.name}</h3>
+              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColor}`}>
+                {cat.status}
+              </span>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg hover:bg-secondary flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center transition-colors"
           >
-            <X className="w-4 h-4" />
+            <X className="w-4 h-4 text-slate-500" />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          <div className="flex justify-center">
-            <span className={`px-2.5 py-1 rounded-[999px] text-xs font-medium ${statusColor}`}>
-              {cat.status}
-            </span>
-          </div>
-
+        <div className="flex-1 overflow-y-auto p-5 space-y-5">
           {/* Stat pills */}
-          <div className="flex gap-2 justify-center">
-            <span className="px-3 py-1.5 rounded-lg bg-secondary text-xs font-medium">
-              Budget {formatINR(cat.budget)}
-            </span>
-            <span className="px-3 py-1.5 rounded-lg bg-secondary text-xs font-medium">
-              Spent {formatINR(cat.spent)}
-            </span>
-            <span className="px-3 py-1.5 rounded-lg bg-secondary text-xs font-medium">
-              Left {formatINR(Math.max(0, cat.budget - cat.spent))}
-            </span>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+              { label: "Budget", value: formatINR(cat.budget) },
+              { label: "Spent", value: formatINR(cat.spent) },
+              { label: "Left", value: formatINR(Math.max(0, cat.budget - cat.spent)) },
+            ].map((s) => (
+              <div key={s.label} className="bg-slate-50 rounded-lg p-2.5 text-center border border-[#E2E8F0]">
+                <p className="text-xs text-slate-400 mb-0.5">{s.label}</p>
+                <p className="text-sm font-bold text-[#0F172A] tabular-nums">{s.value}</p>
+              </div>
+            ))}
           </div>
 
           {/* Donut */}
@@ -247,29 +246,29 @@ function CategoryDrawer({ cat, onClose }: { cat: CategoryData; onClose: () => vo
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-sm font-bold">{pct.toFixed(0)}%</span>
-                <span className="text-xs text-muted-foreground">used</span>
+                <span className="text-xl font-bold text-[#0F172A] tabular-nums">{pct.toFixed(0)}%</span>
+                <span className="text-xs text-slate-400">used</span>
               </div>
             </div>
           </div>
 
-          <div className="border-t border-border pt-4">
-            <h4 className="text-sm font-semibold mb-3">Transactions</h4>
+          <div className="border-t border-[#E2E8F0] pt-4">
+            <h4 className="text-sm font-semibold text-[#0F172A] mb-3">Transactions</h4>
             {transactions.length === 0 ? (
               <div className="text-center py-6">
-                <Wallet className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-40" />
-                <p className="text-xs text-muted-foreground">No transactions this month.</p>
+                <Wallet className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+                <p className="text-xs text-slate-400">No transactions this month.</p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {[...transactions].reverse().map((t, i) => (
-                  <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                  <div key={i} className="flex items-center justify-between py-2.5 border-b border-[#E2E8F0] last:border-0">
                     <div>
-                      <p className="text-sm">{t.description}</p>
-                      <p className="text-xs text-muted-foreground">{t.date}</p>
+                      <p className="text-sm font-medium text-[#0F172A]">{t.description}</p>
+                      <p className="text-xs text-slate-400">{t.date}</p>
                     </div>
-                    <span className="text-sm font-medium tabular-nums text-destructive">
-                      -{formatINR(t.amount)}
+                    <span className="text-sm font-semibold tabular-nums text-red-500">
+                      −{formatINR(t.amount)}
                     </span>
                   </div>
                 ))}
@@ -277,15 +276,15 @@ function CategoryDrawer({ cat, onClose }: { cat: CategoryData; onClose: () => vo
             )}
           </div>
 
-          <div className="flex items-center justify-between py-3 border-t border-border">
+          <div className="flex items-center justify-between py-3 border-t border-[#E2E8F0]">
             <div className="flex items-center gap-2">
-              <ToggleLeft className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm">Mark as Essential</span>
+              <ToggleLeft className="w-4 h-4 text-slate-400" />
+              <span className="text-sm font-medium text-[#0F172A]">Mark as Essential</span>
             </div>
             <button
               onClick={() => setEssential(!essential)}
-              className={`w-11 h-6 rounded-full transition-colors duration-200 relative ${
-                essential ? "bg-info" : "bg-secondary"
+              className={`relative w-11 h-6 rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/30 ${
+                essential ? "bg-blue-600" : "bg-slate-200"
               }`}
             >
               <div
@@ -319,48 +318,72 @@ function GoalProgress({
 }) {
   const pct = Math.max(0, Math.min((saved / total) * 100, 100));
   const barColor =
-    status === "on_track" ? "bg-success" : status === "at_risk" ? "bg-warning" : "bg-destructive";
+    status === "on_track"
+      ? "bg-emerald-500"
+      : status === "at_risk"
+      ? "bg-amber-400"
+      : "bg-red-500";
 
   return (
-    <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
+    <div
+      className="bg-white rounded-xl p-6 border border-[#E2E8F0]"
+      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+    >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <Target className="w-[18px] h-[18px] text-muted-foreground" />
+          <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+            <Target className="w-5 h-5 text-blue-600" />
+          </div>
           <div>
-            <h2 className="text-base font-semibold">Bike Goal 🏍️</h2>
-            <p className="text-xs text-muted-foreground">
+            <h2 className="text-base font-semibold text-[#0F172A]">🏍️ Bike Goal</h2>
+            <p className="text-xs text-slate-500">
               {formatINR(GOAL_SAVED_TOTAL)} saved across 3 months
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {badge === "recovery" && (
-            <span className="px-2.5 py-1 rounded-[999px] text-xs font-medium uppercase tracking-wide bg-destructive/10 text-destructive animate-slide-up">
-              🚨 Recovery Needed
+            <span className="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide bg-red-50 text-red-600 border border-red-200 animate-badge-in">
+              RECOVERY NEEDED 🚨
             </span>
           )}
           {badge === "active" && (
-            <span className="px-2.5 py-1 rounded-[999px] text-xs font-medium uppercase tracking-wide bg-success/10 text-success animate-slide-up">
+            <span className="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide bg-emerald-50 text-emerald-600 border border-emerald-200 animate-badge-in animate-confetti">
               ✅ Plan Active
             </span>
           )}
         </div>
       </div>
-      <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
-        <span className="font-medium">{formatINR(saved)} saved</span>
-        <span className="font-bold text-sm">{pct.toFixed(1)}%</span>
-        <span className="font-medium">{formatINR(total)} goal</span>
+
+      {/* Amount display */}
+      <div className="flex items-baseline gap-1 mb-3">
+        <span className="text-3xl font-bold text-[#0F172A] tabular-nums">
+          {formatINR(saved)}
+        </span>
+        <span className="text-lg text-slate-400 font-medium">/ {formatINR(total)}</span>
       </div>
-      <div className="h-3 bg-secondary rounded-[999px] overflow-hidden">
+
+      {/* Progress bar — 12px height */}
+      <div className="h-3 bg-slate-100 rounded-full overflow-hidden mb-3">
         <div
-          className={`h-full rounded-[999px] transition-all duration-[400ms] ease-out ${barColor} ${
+          className={`h-full rounded-full transition-all duration-700 ease-out animate-progress-fill ${barColor} ${
             recovering ? "animate-pulse-subtle" : ""
           }`}
           style={{ width: `${pct}%` }}
         />
       </div>
+
+      {/* 3 inline stats */}
+      <div className="flex items-center gap-4 text-xs">
+        <span className="font-semibold text-[#0F172A] tabular-nums">{pct.toFixed(1)}% saved</span>
+        <span className="text-slate-300">·</span>
+        <span className="text-slate-500">{formatINR(total - saved)} remaining</span>
+        <span className="text-slate-300">·</span>
+        <span className="text-slate-500">3 months in</span>
+      </div>
+
       {gapText && (
-        <p className="text-xs text-destructive mt-2">{gapText}</p>
+        <p className="text-xs text-red-500 mt-2 font-medium">{gapText}</p>
       )}
     </div>
   );
@@ -369,15 +392,16 @@ function GoalProgress({
 // ─── WARNING BANNER ───
 function WarningBanner({ onDismiss }: { onDismiss: () => void }) {
   return (
-    <div className="bg-warning/10 border border-warning/20 rounded-xl p-4 flex items-center justify-between">
+    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <AlertTriangle className="w-5 h-5 text-warning shrink-0" />
-        <p className="text-sm text-warning">
-          <span className="font-semibold">⚠️ 2 categories over budget</span> — Entertainment (₹299
-          over) and Shopping (₹798 over). Review your spending.
+        <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
+          <AlertTriangle className="w-4 h-4 text-amber-600" />
+        </div>
+        <p className="text-sm text-amber-800">
+          <span className="font-semibold">2 categories over budget</span> — Entertainment (₹299 over) and Shopping (₹798 over).
         </p>
       </div>
-      <button onClick={onDismiss} className="text-warning hover:text-warning/80 transition-colors">
+      <button onClick={onDismiss} className="text-amber-500 hover:text-amber-700 transition-colors ml-3 shrink-0">
         <X className="w-4 h-4" />
       </button>
     </div>
@@ -387,33 +411,61 @@ function WarningBanner({ onDismiss }: { onDismiss: () => void }) {
 // ─── SUMMARY CARDS ───
 function SummaryCards({ spent, remaining }: { spent: number; remaining: number }) {
   const cards = [
-    { label: "MONTHLY INCOME", value: MONTHLY_INCOME, icon: ArrowUpRight, borderColor: "border-l-info" },
-    { label: "SPENT THIS MONTH", value: spent, icon: ArrowDownRight, borderColor: "border-l-warning" },
+    {
+      label: "MONTHLY INCOME",
+      value: MONTHLY_INCOME,
+      icon: ArrowUpRight,
+      iconBg: "bg-blue-50",
+      iconColor: "text-blue-600",
+      borderColor: "border-t-blue-500",
+      valueColor: "text-[#0F172A]",
+    },
+    {
+      label: "SPENT THIS MONTH",
+      value: spent,
+      icon: ArrowDownRight,
+      iconBg: "bg-amber-50",
+      iconColor: "text-amber-600",
+      borderColor: "border-t-amber-400",
+      valueColor: "text-[#0F172A]",
+    },
     {
       label: "REMAINING",
       value: remaining,
       icon: Wallet,
-      borderColor: remaining < 0 ? "border-l-destructive" : "border-l-success",
+      iconBg: remaining < 0 ? "bg-red-50" : "bg-emerald-50",
+      iconColor: remaining < 0 ? "text-red-600" : "text-emerald-600",
+      borderColor: remaining < 0 ? "border-t-red-500" : "border-t-emerald-500",
+      valueColor: remaining < 0 ? "text-red-600" : "text-[#0F172A]",
     },
-    { label: "SAVINGS TARGET", value: SAVINGS_TARGET, icon: PiggyBank, borderColor: "border-l-info" },
+    {
+      label: "SAVINGS TARGET",
+      value: SAVINGS_TARGET,
+      icon: PiggyBank,
+      iconBg: "bg-blue-50",
+      iconColor: "text-blue-600",
+      borderColor: "border-t-blue-500",
+      valueColor: "text-[#0F172A]",
+    },
   ];
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {cards.map((c) => (
+      {cards.map((c, i) => (
         <div
           key={c.label}
-          className={`bg-card rounded-xl p-4 shadow-sm border border-border border-l-4 ${c.borderColor} transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md`}
+          className={`bg-white rounded-xl p-4 border border-[#E2E8F0] border-t-[3px] ${c.borderColor} transition-all duration-150 hover:-translate-y-0.5 hover:shadow-elevated animate-slide-in-bottom stagger-${i + 1}`}
+          style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
         >
-          <div className="flex items-center gap-2 mb-2">
-            <c.icon className="w-[18px] h-[18px] text-muted-foreground" />
-            <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {c.label}
-            </span>
+          <div className="flex items-center justify-between mb-3">
+            <div className={`w-8 h-8 rounded-lg ${c.iconBg} flex items-center justify-center`}>
+              <c.icon className={`w-4 h-4 ${c.iconColor}`} />
+            </div>
           </div>
-          <p className={`text-xl font-bold tabular-nums ${c.value < 0 ? "text-destructive" : ""}`}>
+          <p className={`text-2xl font-bold tabular-nums animate-count-up ${c.valueColor}`}>
             <AnimatedNumber value={c.value} />
           </p>
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mt-1.5">{c.label}</p>
         </div>
       ))}
     </div>
@@ -435,52 +487,49 @@ function CategoryCard({
   const remaining = item.budget - item.spent;
   const isOver = ratio > 1;
   const Icon = item.icon;
-  const statusColor = ratio > 1 ? "bg-destructive" : ratio >= 0.75 ? "bg-warning" : "bg-success";
-  const statusTextColor =
-    ratio > 1 ? "text-destructive" : ratio >= 0.75 ? "text-warning" : "text-success";
+  const barColor = isOver ? "bg-red-500" : ratio >= 0.75 ? "bg-amber-400" : "bg-emerald-500";
+  const statusBg = isOver
+    ? "bg-red-50 text-red-600 border-red-200"
+    : ratio >= 0.99
+    ? "bg-slate-100 text-slate-600"
+    : ratio >= 0.75
+    ? "bg-amber-50 text-amber-600 border-amber-200"
+    : "bg-emerald-50 text-emerald-600 border-emerald-200";
 
   return (
     <div
       onClick={onClick}
-      className={`bg-card rounded-xl p-4 shadow-sm border transition-all duration-150 cursor-pointer hover:-translate-y-0.5 hover:shadow-md
+      className={`bg-white rounded-xl p-4 border transition-all duration-150 cursor-pointer hover:-translate-y-0.5
         ${
           highlighted
-            ? "border-destructive ring-2 ring-destructive/20 shadow-[0_0_12px_rgba(220,38,38,0.15)]"
+            ? "border-red-400 ring-2 ring-red-400/20 shadow-[0_0_12px_rgba(220,38,38,0.15)] bg-red-50/30"
             : isOver
-            ? "border-destructive/30"
-            : "border-border"
+            ? "border-red-200 border-l-4 border-l-red-400"
+            : "border-[#E2E8F0]"
         }`}
+      style={{ boxShadow: highlighted ? undefined : "0 1px 3px rgba(0,0,0,0.06)" }}
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Icon className={`w-[18px] h-[18px] ${isOver ? "text-destructive" : "text-muted-foreground"}`} />
-          <span className="text-sm font-semibold">{item.name}</span>
+          <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isOver ? "bg-red-50" : "bg-slate-50"}`}>
+            <Icon className={`w-[15px] h-[15px] ${isOver ? "text-red-500" : "text-slate-500"}`} />
+          </div>
+          <span className="text-sm font-semibold text-[#0F172A]">{item.name}</span>
         </div>
-        <span
-          className={`px-2 py-0.5 rounded-[999px] text-xs font-medium ${
-            isOver
-              ? "bg-destructive/10 text-destructive"
-              : ratio >= 0.99
-              ? "bg-success/10 text-success"
-              : ratio >= 0.75
-              ? "bg-warning/10 text-warning"
-              : "bg-success/10 text-success"
-          }`}
-        >
+        <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${statusBg}`}>
           {item.status}
         </span>
       </div>
-      <div className="h-1.5 bg-secondary rounded-[999px] overflow-hidden mb-2">
+      {/* 6px progress bar */}
+      <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden mb-2">
         <div
-          className={`h-full rounded-[999px] transition-all duration-300 ease-out ${statusColor}`}
+          className={`h-full rounded-full transition-all duration-500 ease-out ${barColor}`}
           style={{ width: `${barWidth}%` }}
         />
       </div>
       <div className="flex justify-between text-xs tabular-nums">
-        <span className="text-muted-foreground">
-          {formatINR(item.spent)} / {formatINR(item.budget)}
-        </span>
-        <span className={statusTextColor}>
+        <span className="text-slate-400">{formatINR(item.spent)} / {formatINR(item.budget)}</span>
+        <span className={isOver ? "text-red-500 font-semibold" : "text-slate-500"}>
           {isOver ? `${formatINR(Math.abs(remaining))} over` : `${formatINR(remaining)} left`}
         </span>
       </div>
@@ -543,41 +592,50 @@ function ExpenseForm({
   ];
 
   return (
-    <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-      <h3 className="text-base font-semibold mb-4 flex items-center gap-2">
-        <Plus className="w-[18px] h-[18px] text-muted-foreground" />
-        Log Unexpected Expense
-      </h3>
+    <div
+      className="bg-white rounded-xl p-6 border border-[#E2E8F0] border-l-4 border-l-blue-500"
+      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+    >
+      <div className="flex items-center gap-2 mb-4">
+        <Zap className="w-5 h-5 text-blue-600" />
+        <h3 className="text-base font-semibold text-[#0F172A]">⚡ Log Unexpected Expense</h3>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+        {/* Amount */}
         <div className={shaking && errors.amount ? "animate-shake" : ""}>
-          <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1 block">
-            Amount (₹)
+          <label className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5 block">
+            Amount
           </label>
-          <input
-            type="text"
-            inputMode="numeric"
-            value={form.amount}
-            onChange={(e) => setForm({ ...form, amount: e.target.value.replace(/[^0-9.]/g, "") })}
-            placeholder="5,000"
-            disabled={disabled}
-            className={`w-full h-10 px-3 rounded-lg border text-sm tabular-nums bg-card transition-colors duration-150
-              focus:outline-none focus:ring-2 focus:ring-info/30 focus:border-info
-              disabled:opacity-50 disabled:cursor-not-allowed
-              ${errors.amount ? "border-destructive" : "border-border"}`}
-          />
-          {errors.amount && <p className="text-xs text-destructive mt-1">{errors.amount}</p>}
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">₹</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={form.amount}
+              onChange={(e) => setForm({ ...form, amount: e.target.value.replace(/[^0-9.]/g, "") })}
+              placeholder="5,000"
+              disabled={disabled}
+              className={`w-full h-10 pl-7 pr-3 rounded-lg border text-sm tabular-nums bg-white transition-all duration-150
+                focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500
+                disabled:opacity-50 disabled:cursor-not-allowed
+                ${errors.amount ? "border-red-400 focus:ring-red-500/20 focus:border-red-400 animate-shake" : "border-[#E2E8F0]"}`}
+            />
+          </div>
+          {errors.amount && <p className="text-xs text-red-500 mt-1">{errors.amount}</p>}
         </div>
+
+        {/* Category */}
         <div className={shaking && errors.category ? "animate-shake" : ""}>
-          <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1 block">
+          <label className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5 block">
             Category
           </label>
           <select
             value={form.category}
             onChange={(e) => setForm({ ...form, category: e.target.value })}
             disabled={disabled}
-            className={`w-full h-10 px-3 rounded-lg border text-sm bg-card transition-colors duration-150
-              focus:outline-none focus:ring-2 focus:ring-info/30 focus:border-info disabled:opacity-50
-              ${errors.category ? "border-destructive" : "border-border"}`}
+            className={`w-full h-10 px-3 rounded-lg border text-sm bg-white transition-all duration-150
+              focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50
+              ${errors.category ? "border-red-400" : "border-[#E2E8F0]"}`}
           >
             <option value="">Select category</option>
             {allCategories.map((c) => (
@@ -586,10 +644,12 @@ function ExpenseForm({
               </option>
             ))}
           </select>
-          {errors.category && <p className="text-xs text-destructive mt-1">{errors.category}</p>}
+          {errors.category && <p className="text-xs text-red-500 mt-1">{errors.category}</p>}
         </div>
+
+        {/* Note */}
         <div>
-          <label className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1 block">
+          <label className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-1.5 block">
             Note
           </label>
           <input
@@ -598,35 +658,39 @@ function ExpenseForm({
             onChange={(e) => setForm({ ...form, note: e.target.value })}
             placeholder="e.g. Bike repair"
             disabled={disabled}
-            className="w-full h-10 px-3 rounded-lg border border-border text-sm bg-card transition-colors duration-150
-              focus:outline-none focus:ring-2 focus:ring-info/30 focus:border-info disabled:opacity-50"
+            className="w-full h-10 px-3 rounded-lg border border-[#E2E8F0] text-sm bg-white transition-all duration-150
+              focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 disabled:opacity-50"
           />
         </div>
+
+        {/* Submit */}
         <div className="flex items-end">
           <button
             onClick={handleSubmit}
             disabled={disabled}
-            className="w-full h-10 bg-info text-white rounded-lg text-sm font-medium
+            className="w-full h-10 bg-[#1A56DB] text-white rounded-lg text-sm font-semibold
               flex items-center justify-center gap-2 transition-all duration-150
-              hover:bg-info/90 active:scale-[0.98]
-              focus:outline-none focus:ring-2 focus:ring-info/30
-              disabled:opacity-50 disabled:cursor-not-allowed"
+              hover:bg-blue-700 active:scale-[0.98]
+              focus:outline-none focus:ring-2 focus:ring-blue-500/30
+              disabled:opacity-50 disabled:cursor-not-allowed
+              btn-shimmer"
+            style={{ boxShadow: "0 1px 3px rgba(26,86,219,0.3)" }}
           >
             {disabled ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" /> AI Agent Analysing...
+                <Loader2 className="w-4 h-4 animate-spin" /> Analysing...
               </>
             ) : (
               <>
-                <Zap className="w-4 h-4" /> Submit Expense
+                <Bot className="w-4 h-4" /> 🤖 Analyse with AI
               </>
             )}
           </button>
         </div>
       </div>
       {dupWarning && (
-        <div className="mt-3 flex items-center gap-2 text-xs text-warning">
-          <AlertTriangle className="w-4 h-4" />
+        <div className="mt-3 flex items-center gap-2 text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-lg border border-amber-200">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
           Already processing an expense. Reset first to log another.
         </div>
       )}
@@ -639,12 +703,12 @@ function SkeletonCards() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="bg-card rounded-xl p-6 shadow-md border border-border animate-pulse">
-          <div className="h-5 bg-secondary rounded w-1/3 mb-4" />
-          <div className="h-3 bg-secondary rounded w-2/3 mb-3" />
-          <div className="h-3 bg-secondary rounded w-1/2 mb-3" />
-          <div className="h-3 bg-secondary rounded w-3/4 mb-3" />
-          <div className="h-8 bg-secondary rounded w-1/4" />
+        <div key={i} className="bg-white rounded-xl p-6 border border-[#E2E8F0]">
+          <div className="h-4 skeleton-shimmer rounded w-1/3 mb-4" />
+          <div className="h-3 skeleton-shimmer rounded w-2/3 mb-3" />
+          <div className="h-3 skeleton-shimmer rounded w-1/2 mb-3" />
+          <div className="h-3 skeleton-shimmer rounded w-3/4 mb-3" />
+          <div className="h-8 skeleton-shimmer rounded w-1/4 mt-2" />
         </div>
       ))}
     </div>
@@ -662,6 +726,8 @@ function LiveReasoningStepper({
   accepted: boolean;
 }) {
   const [visibleCount, setVisibleCount] = useState(0);
+  const [startTime] = useState(Date.now());
+  const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
     if (phase === "LOADING") {
@@ -676,6 +742,12 @@ function LiveReasoningStepper({
     }
   }, [phase, steps.length]);
 
+  useEffect(() => {
+    if (phase !== "LOADING") {
+      setElapsed(Date.now() - startTime);
+    }
+  }, [phase, startTime]);
+
   const displaySteps = accepted
     ? [
         ...steps,
@@ -684,37 +756,56 @@ function LiveReasoningStepper({
     : steps;
 
   return (
-    <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
-      <div className="flex items-center gap-2 mb-1">
-        <Bot className="w-[18px] h-[18px] text-info" />
-        <h3 className="text-base font-semibold">🤖 Agent Reasoning — Live</h3>
+    <div
+      className="bg-white rounded-xl p-6 border border-[#E2E8F0]"
+      style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+    >
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2">
+          {phase === "LOADING" ? (
+            <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse-dot" />
+          ) : (
+            <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full" />
+          )}
+          <Bot className="w-[18px] h-[18px] text-blue-600" />
+          <h3 className="text-base font-semibold text-[#0F172A]">🤖 Agent Reasoning — Live</h3>
+        </div>
       </div>
-      <p className="text-xs text-muted-foreground mb-4">
+      <p className="text-xs text-slate-400 mb-4">
         Watch SaveSmart's AI work through your finances
       </p>
-      <div className="border-l-2 border-info/20 ml-3 space-y-0">
+      <div className="border-l-2 border-blue-100 ml-3 space-y-0">
         {displaySteps.map((s, i) => {
           const isVisible = i < visibleCount || phase !== "LOADING";
           const isPending = phase === "LOADING" && i >= visibleCount;
           return (
             <div
               key={i}
-              className={`flex items-start gap-3 py-2 relative transition-opacity duration-300 ${
+              className={`flex items-start gap-3 py-2 relative transition-all duration-300 animate-slide-in-left stagger-${Math.min(i + 1, 8)} ${
                 isVisible ? "opacity-100" : isPending ? "opacity-30" : "opacity-0"
               }`}
             >
               <div
                 className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium shrink-0 -ml-[13px] transition-colors duration-300 ${
-                  isVisible ? "bg-success/10 text-success" : "bg-secondary text-muted-foreground"
+                  isVisible
+                    ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                    : "bg-slate-100 text-slate-400"
                 }`}
               >
                 {isVisible ? "✅" : "⏳"}
               </div>
-              <p className="text-xs text-muted-foreground pt-1">{s.text}</p>
+              <p className="text-xs text-slate-500 pt-1 leading-relaxed">{s.text}</p>
             </div>
           );
         })}
       </div>
+      {(phase === "SHOCK" || phase === "RECOVERED") && (
+        <div className="mt-3 pt-3 border-t border-[#E2E8F0]">
+          <p className="text-xs text-slate-400 font-medium">
+            Analysis complete in {((Date.now() - startTime) / 1000).toFixed(1)}s · Confidence: 94%
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -740,7 +831,7 @@ function RecoveryPanel({
   return (
     <div className="animate-slide-up space-y-4">
       {isExtreme && (
-        <div className="bg-[#7f1d1d] text-white rounded-xl p-4 flex items-center gap-3">
+        <div className="bg-red-900 text-white rounded-xl p-4 flex items-center gap-3">
           <AlertTriangle className="w-5 h-5 shrink-0" />
           <div>
             <p className="text-sm font-semibold">⚠️ Major Shock — Consider using emergency fund + extend goal by 1 month</p>
@@ -753,29 +844,36 @@ function RecoveryPanel({
 
       {/* Panel Header */}
       <div
-        className={`bg-card rounded-xl p-6 shadow-md border ${
-          isExtreme ? "border-l-4 border-l-[#7f1d1d] border-t-border border-r-border border-b-border" : "border-l-4 border-l-destructive border-t-border border-r-border border-b-border"
-        }`}
+        className="bg-white rounded-xl p-6 border border-[#E2E8F0] border-l-4 border-l-red-500"
+        style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
       >
-        <div className="flex items-center gap-2 mb-1">
-          <Zap className="w-[18px] h-[18px] text-warning" />
-          <h3 className="text-base font-semibold">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center">
+            <Zap className="w-[16px] h-[16px] text-amber-500" />
+          </div>
+          <h3 className="text-base font-semibold text-[#0F172A]">
             ⚡ Emergency Detected — {shockNote || "Expense"} — {formatINR(shockAmount)}
           </h3>
         </div>
-        <p className="text-xs text-muted-foreground mb-2">
-          Savings gap this month: {formatINR(response.gap)}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          Agent Note: {response.agentNote}
+        <div className="flex items-center gap-4 mt-2">
+          <div className="bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-center">
+            <p className="text-xs text-red-500 font-medium uppercase tracking-wide">Savings Gap</p>
+            <p className="text-xl font-bold text-red-600 tabular-nums">{formatINR(response.gap)}</p>
+          </div>
+        </div>
+        <p className="text-xs text-slate-500 mt-3 leading-relaxed">
+          <span className="font-medium text-[#0F172A]">Agent Note:</span> {response.agentNote}
         </p>
       </div>
 
       {noWants ? (
-        <div className="bg-card rounded-xl p-6 shadow-md border border-border text-center">
-          <AlertTriangle className="w-8 h-8 text-warning mx-auto mb-3" />
-          <p className="text-sm font-medium mb-2">All discretionary spending already at zero.</p>
-          <p className="text-xs text-muted-foreground">
+        <div
+          className="bg-white rounded-xl p-6 border border-[#E2E8F0] text-center"
+          style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
+        >
+          <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-3" />
+          <p className="text-sm font-semibold text-[#0F172A] mb-2">All discretionary spending already at zero.</p>
+          <p className="text-xs text-slate-500">
             Recommendation: Draw ₹1,320 from miscellaneous buffer + extend goal timeline by 3 weeks
             to August 2026.
           </p>
@@ -790,65 +888,69 @@ function RecoveryPanel({
 
             const tagBg =
               s.tagColor === "blue"
-                ? "bg-info/10 text-info"
+                ? "bg-blue-50 text-blue-700 border border-blue-200"
                 : s.tagColor === "red"
-                ? "bg-destructive/10 text-destructive"
-                : "bg-purple-100 text-purple-700";
+                ? "bg-red-50 text-red-600 border border-red-200"
+                : "bg-purple-50 text-purple-700 border border-purple-200";
 
-            const borderClass = isAccepted
-              ? "bg-success/5 border-success"
+            const cardBorder = isAccepted
+              ? "border-emerald-400 bg-emerald-50/30"
               : s.recommended && acceptedIndex === null
-              ? "border-info bg-info/5 border-2"
-              : "border-border";
+              ? "border-blue-400 border-2 bg-blue-50/20"
+              : "border-[#E2E8F0]";
 
             return (
               <div
                 key={i}
-                className={`rounded-xl p-4 border-2 transition-all duration-200 ${staggerClass} ${borderClass} ${
+                className={`rounded-xl p-5 border-2 transition-all duration-200 bg-white ${staggerClass} ${cardBorder} ${
                   isOther ? "opacity-40 pointer-events-none" : ""
-                }`}
+                } ${s.recommended && acceptedIndex === null ? "shadow-elevated" : ""}`}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className={`px-2 py-0.5 rounded-[999px] text-xs font-medium ${tagBg}`}>
+                <div className="flex items-center justify-between mb-3">
+                  <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${tagBg}`}>
                     {isAccepted ? "✓ Plan Activated" : s.tag}
                   </span>
-                  <span className="px-2 py-0.5 rounded-[999px] text-xs font-medium bg-secondary text-muted-foreground">
+                  <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">
                     {s.difficulty}
                   </span>
                 </div>
-                <h4 className="text-sm font-semibold mb-2">{s.name}</h4>
-                <p className="text-xs font-medium text-muted-foreground mb-1">What to do:</p>
-                <ul className="text-xs text-muted-foreground mb-3 space-y-1">
+                <h4 className="text-sm font-bold text-[#0F172A] mb-2">{s.name}</h4>
+                <p className="text-xs font-semibold text-slate-400 mb-1 uppercase tracking-wide">Actions</p>
+                <ul className="text-xs text-slate-500 mb-3 space-y-1.5">
                   {s.actions.map((a, j) => (
-                    <li key={j}>• {a}</li>
+                    <li key={j} className="flex items-start gap-1.5">
+                      <span className="text-blue-400 mt-0.5 shrink-0">•</span>
+                      {a}
+                    </li>
                   ))}
                 </ul>
-                <div className="flex items-center justify-between text-xs mb-2">
-                  <span className="font-bold text-success tabular-nums">
+                <div className="bg-slate-50 rounded-lg p-2.5 mb-3 flex items-center justify-between">
+                  <span className="text-xs font-semibold text-emerald-600 tabular-nums">
                     Recovers: {formatINR(s.recovery_amount)}
                   </span>
-                  <span className="text-muted-foreground">Score: {s.feasibility}/10</span>
+                  <span className="text-xs text-slate-400">Score: {s.feasibility}/10</span>
                 </div>
                 <div className="flex items-center justify-between text-xs mb-3">
-                  <span className="text-muted-foreground">Timeframe: {s.timeframe}</span>
+                  <span className="text-slate-400">⏱ {s.timeframe}</span>
                 </div>
-                <p className="text-xs italic text-muted-foreground mb-3">
-                  Why this works: {s.why}
+                <p className="text-xs italic text-slate-400 mb-3 leading-relaxed">
+                  "{s.why}"
                 </p>
                 {acceptedIndex === null && (
                   <button
                     onClick={() => onAccept(i)}
-                    className={`w-full h-9 rounded-lg text-sm font-medium transition-all duration-150 active:scale-[0.98] ${
+                    className={`w-full h-9 rounded-lg text-sm font-semibold transition-all duration-150 active:scale-[0.98] ${
                       s.recommended
-                        ? "bg-info text-white hover:bg-info/90"
-                        : "bg-secondary text-foreground hover:bg-secondary/80 border border-border"
+                        ? "bg-[#1A56DB] text-white hover:bg-blue-700 btn-shimmer"
+                        : "bg-white text-[#0F172A] border border-[#E2E8F0] hover:border-blue-400 hover:text-blue-600"
                     }`}
+                    style={s.recommended ? { boxShadow: "0 1px 3px rgba(26,86,219,0.3)" } : undefined}
                   >
                     Accept This Plan
                   </button>
                 )}
                 {isAccepted && (
-                  <div className="flex items-center justify-center gap-2 text-success text-sm font-medium">
+                  <div className="flex items-center justify-center gap-2 text-emerald-600 text-sm font-semibold animate-confetti">
                     <Check className="w-4 h-4" /> Plan Activated ✓
                   </div>
                 )}
@@ -860,11 +962,13 @@ function RecoveryPanel({
 
       {/* AI Recommendation Box */}
       {!noWants && acceptedIndex === null && (
-        <div className="bg-info-light border-l-4 border-l-info rounded-xl p-4 flex items-start gap-3">
-          <Bot className="w-5 h-5 text-info shrink-0 mt-0.5" />
+        <div
+          className="bg-blue-50 border border-blue-200 border-l-4 border-l-blue-500 rounded-xl p-4 flex items-start gap-3"
+        >
+          <Bot className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm text-foreground">{response.recommendation}</p>
-            <p className="text-xs text-muted-foreground mt-1">— SaveSmart AI</p>
+            <p className="text-sm text-[#0F172A] leading-relaxed">{response.recommendation}</p>
+            <p className="text-xs text-slate-400 mt-1">— SaveSmart AI</p>
           </div>
         </div>
       )}
@@ -889,29 +993,37 @@ function KPIFooter({
       label: "SAVINGS RATE",
       value: `${savingsRate}%`,
       icon: PiggyBank,
-      color: savingsRate > 20 ? "text-success" : "text-warning",
+      iconBg: "bg-blue-50",
+      iconColor: "text-blue-600",
+      color: savingsRate > 20 ? "text-emerald-600" : "text-amber-500",
       tooltip: "Monthly savings ÷ savings target × 100",
     },
     {
       label: "STRESS SCORE",
       value: `${stressScore}/100`,
       icon: Gauge,
+      iconBg: stressScore <= 50 ? "bg-emerald-50" : stressScore <= 65 ? "bg-amber-50" : "bg-red-50",
+      iconColor: stressScore <= 50 ? "text-emerald-600" : stressScore <= 65 ? "text-amber-500" : "text-red-500",
       color:
-        stressScore <= 50 ? "text-success" : stressScore <= 65 ? "text-warning" : "text-destructive",
+        stressScore <= 50 ? "text-emerald-600" : stressScore <= 65 ? "text-amber-500" : "text-red-500",
       tooltip: "100 − (overshoot events × 10) − (gap severity × 5)",
     },
     {
       label: "ADHERENCE RATE",
       value: `${adherenceRate}%`,
       icon: Shield,
-      color: adherenceRate > 70 ? "text-success" : "text-warning",
+      iconBg: adherenceRate > 70 ? "bg-emerald-50" : "bg-amber-50",
+      iconColor: adherenceRate > 70 ? "text-emerald-600" : "text-amber-500",
+      color: adherenceRate > 70 ? "text-emerald-600" : "text-amber-500",
       tooltip: "Scenarios accepted ÷ total shocks × 100",
     },
     {
       label: "GOAL VELOCITY",
       value: `${goalVelocity}x`,
       icon: Rocket,
-      color: goalVelocity >= 1 ? "text-success" : "text-destructive",
+      iconBg: goalVelocity >= 1 ? "bg-emerald-50" : "bg-red-50",
+      iconColor: goalVelocity >= 1 ? "text-emerald-600" : "text-red-500",
+      color: goalVelocity >= 1 ? "text-emerald-600" : "text-red-500",
       tooltip: "Actual pace ÷ required pace — >1 means ahead",
     },
   ];
@@ -921,14 +1033,17 @@ function KPIFooter({
       {kpis.map((k) => (
         <div
           key={k.label}
-          className="bg-card rounded-xl p-4 shadow-sm border border-border text-center group relative transition-all duration-150 hover:-translate-y-0.5 hover:shadow-md"
+          className="bg-white rounded-xl p-4 border border-[#E2E8F0] text-center group relative transition-all duration-150 hover:-translate-y-0.5 hover:shadow-elevated"
+          style={{ boxShadow: "0 1px 3px rgba(0,0,0,0.08)" }}
         >
-          <k.icon className="w-[18px] h-[18px] text-muted-foreground mx-auto mb-2" />
+          <div className={`w-9 h-9 rounded-xl ${k.iconBg} flex items-center justify-center mx-auto mb-2`}>
+            <k.icon className={`w-[18px] h-[18px] ${k.iconColor}`} />
+          </div>
           <p className={`text-xl font-bold tabular-nums ${k.color}`}>{k.value}</p>
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mt-1">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400 mt-1">
             {k.label}
           </p>
-          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-lg bg-foreground text-background text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-10">
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 rounded-lg bg-[#0F172A] text-white text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-10">
             {k.tooltip}
           </div>
         </div>
@@ -941,13 +1056,12 @@ function KPIFooter({
 function ToastNotification({ message, visible }: { message: string; visible: boolean }) {
   if (!visible) return null;
   return (
-    <div
-      className="fixed bottom-6 right-6 bg-card border border-border border-l-4 border-l-success px-5 py-4 rounded-xl shadow-lg text-sm font-medium z-50 max-w-sm"
-      style={{ animation: "slide-up 200ms ease-out" }}
-    >
-      <div className="flex items-center gap-3">
-        <Check className="w-5 h-5 text-success shrink-0" />
-        <span>{message}</span>
+    <div className="toast-container">
+      <div className="toast-item flex items-center gap-3">
+        <div className="w-7 h-7 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+          <Check className="w-4 h-4 text-emerald-600" />
+        </div>
+        <span className="text-[#0F172A]">{message}</span>
       </div>
     </div>
   );
@@ -1117,7 +1231,7 @@ export default function Index() {
 
         {/* Category Grid */}
         <div>
-          <h3 className="text-lg font-semibold mb-4">Category Spending</h3>
+          <h3 className="text-base font-semibold text-[#0F172A] mb-4">Category Spending</h3>
           <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
             {CATEGORIES.map((item) => (
               <CategoryCard
@@ -1144,8 +1258,8 @@ export default function Index() {
         {appPhase === "LOADING" && (
           <div className="space-y-4">
             {loadingSlow && !loadingTimeout && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Loader2 className="w-4 h-4 animate-spin" />
+              <div className="flex items-center gap-2 text-xs text-slate-500 bg-slate-50 px-4 py-2 rounded-lg border border-[#E2E8F0]">
+                <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
                 Agent is thinking harder than usual...
               </div>
             )}
@@ -1173,9 +1287,9 @@ export default function Index() {
 
         {/* Offline Mode badge */}
         {loadingTimeout && (appPhase === "SHOCK" || appPhase === "RECOVERED") && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="px-1.5 py-0.5 rounded text-xs bg-secondary text-muted-foreground">
-              (Offline Mode)
+          <div className="flex items-center gap-2 text-xs text-slate-400">
+            <span className="px-2 py-1 rounded bg-slate-100 text-slate-500 text-xs font-medium">
+              Offline Mode
             </span>
           </div>
         )}
@@ -1197,8 +1311,8 @@ export default function Index() {
           <div className="flex justify-center">
             <button
               onClick={handleReset}
-              className="px-6 py-2.5 rounded-lg text-sm font-medium text-muted-foreground border border-border
-                hover:bg-secondary hover:text-foreground transition-colors duration-150 flex items-center gap-2"
+              className="px-6 py-2.5 rounded-lg text-sm font-medium text-slate-500 border border-[#E2E8F0] bg-white
+                hover:bg-slate-50 hover:text-slate-700 transition-all duration-150 flex items-center gap-2 active:scale-[0.98]"
             >
               <RotateCcw className="w-4 h-4" />
               Reset & Try Another Expense
@@ -1218,7 +1332,7 @@ export default function Index() {
         <div className="flex justify-center">
           <button
             onClick={() => setZeroWants(!zeroWants)}
-            className="px-3 py-1 rounded text-xs text-muted-foreground border border-dashed border-border hover:bg-secondary transition-colors"
+            className="px-3 py-1 rounded text-xs text-slate-400 border border-dashed border-slate-200 hover:bg-slate-50 transition-colors"
             title="Dev tool: simulate zero wants remaining"
           >
             <Eye className="w-3 h-3 inline mr-1" />
