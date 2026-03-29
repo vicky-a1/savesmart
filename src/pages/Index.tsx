@@ -1127,31 +1127,34 @@ export default function Index() {
 
   async function callAgent(amount: number, category: string, note: string | undefined): Promise<AgentResponse> {
     try {
+      const payload = {
+        expense_amount: Number(amount),
+        expense_category: category,
+        expense_note: note || "",
+        budget_state: {
+          income: 45000,
+          savings_goal: 25000,
+          total_goal: 150000,
+          total_saved: 47000,
+          current_spent: 23726,
+          categories: [
+            { name: "Dining Out", type: "Want", budget: 3500, spent: 2900 },
+            { name: "Shopping", type: "Want", budget: 2000, spent: 2798 },
+            { name: "Entertainment", type: "Want", budget: 1000, spent: 1299 },
+            { name: "Fitness", type: "Want", budget: 1200, spent: 1200 },
+            { name: "Miscellaneous", type: "Buffer", budget: 1500, spent: 180 }
+          ]
+        }
+      };
       const res = await fetch(N8N_WEBHOOK, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          expense_amount: Number(amount),
-          expense_category: category,
-          expense_note: note || "",
-          budget_state: {
-            income: 45000,
-            savings_goal: 25000,
-            total_goal: 150000,
-            total_saved: 47000,
-            current_spent: 23726,
-            categories: [
-              { name: "Dining Out", type: "Want", budget: 3500, spent: 2900 },
-              { name: "Shopping", type: "Want", budget: 2000, spent: 2798 },
-              { name: "Entertainment", type: "Want", budget: 1000, spent: 1299 },
-              { name: "Fitness", type: "Want", budget: 1200, spent: 1200 },
-              { name: "Miscellaneous", type: "Buffer", budget: 1500, spent: 180 }
-            ]
-          }
-        })
+        body: JSON.stringify(payload)
       });
-      if (!res.ok) throw new Error("n8n error");
-      return await res.json();
+      const text = await res.text();
+      if (!text || text.trim() === '') throw new Error('Empty response from n8n');
+      const data = JSON.parse(text);
+      return data;
     } catch (err) {
       console.warn("n8n failed, using fallback:", err);
       return runSaveSmartAgent(amount, category, note);
