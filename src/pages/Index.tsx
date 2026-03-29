@@ -1123,7 +1123,7 @@ export default function Index() {
     setTimeout(() => setToast(null), 4000);
   };
 
-  const N8N_WEBHOOK = "https://victor2218.app.n8n.cloud/webhook/savesmart-agent";
+  const N8N_WEBHOOK = "https://victor2218.app.n8n.cloud/webhook/agent-run";
 
   async function callAgent(amount: number, category: string, note: string | undefined): Promise<AgentResponse> {
     try {
